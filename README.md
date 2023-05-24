@@ -1,6 +1,6 @@
 # Corrupted LibriSpeech
 
-This dataset is constructed by training Conv1d-LSTM on train-other-500 and train-clean-360 and decoding train-clean-100 after every epoch. The intended use of this system is training active learning / utterance verification systems.
+This dataset is constructed by training [Conv1d-LSTM](https://github.com/proger/haloop) on train-other-500 and train-clean-360 and decoding train-clean-100 after every epoch. The intended use of this system is training active learning / utterance verification systems.
 
 The run that resulted in this data: https://wandb.ai/stud76/ha/runs/3i0kv0vf
 
