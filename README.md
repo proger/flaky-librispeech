@@ -4,6 +4,8 @@ This dataset is constructed by training a character-based [Conv1d-LSTM](https://
 
 The run that resulted in this data: https://wandb.ai/stud76/ha/runs/3i0kv0vf
 
+This dataset contains 28539 utterances
+
 ## Examples
 
 ```console
