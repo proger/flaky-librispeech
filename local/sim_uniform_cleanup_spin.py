@@ -2,6 +2,11 @@
 
 import argparse
 import pandas as pd
+import numpy as np
+import sentencepiece as spm
+import sys
+
+sp = spm.SentencePieceProcessor(model_file='libribpe.model')
 
 parser = argparse.ArgumentParser(description='simulate uniform cleanups for active learning')
 parser.add_argument('--seed', type=int, default=42)
@@ -19,6 +24,9 @@ chunk_size = 2196
 
 chunks = [both[i:i+chunk_size] for i in range(0,len(both),chunk_size)]
 topk = args.topk if args.topk else len(chunks)
+
+def encode(x):
+    return ' '.join(sp.encode(x, out_type=str))
 
 for i in range(0,len(chunks)+1)[::-1][:topk]:
     query = chunks[i-1]
@@ -40,13 +48,23 @@ for i in range(0,len(chunks)+1)[::-1][:topk]:
     #if len(unknown) == 24146:
     #    import ipdb; ipdb.set_trace()
 
-    query['text'] = '<↑> ' + query['text']
-    known_clean['text'] = '<↑> ' + known_clean['text']
-    known_dirty['text'] = '<↓> ' + known_dirty['text']
-    unknown['text'] = '<?> ' + unknown['text']
+    test_unk = unknown.copy()
 
-    dataset = pd.concat([known_clean, known_dirty, unknown])
+    query['text'] = '<↑> ' + query['text'].apply(encode)
+    known_clean['text'] = '<↑> ' + known_clean['text'].apply(encode)
+    known_dirty['text'] = '<↓> ' + known_dirty['text'].apply(encode)
+    unknown['text'] = '<?> ' + unknown['text'].apply(encode)
+    test_unk['text'] = test_unk['text'].apply(encode)
+
+    dataset = pd.concat([
+        known_clean.sample(frac=1, replace=False),
+        known_dirty.sample(frac=1, replace=False),
+        unknown.sample(frac=1, replace=False)
+    ])
     dataset = dataset.sample(frac=1, replace=False, random_state=i)
+
+    filename = f'data/flaky/spin/train-clean-100.seed{args.seed}.unknown{len(unknown):05d}.unk.txt.spin.test'
+    test_unk.to_csv(filename, sep='\t', index=False, header=False)
 
     filename = f'data/flaky/spin/train-clean-100.seed{args.seed}.unknown{len(unknown):05d}.txt.spin'
     dataset.to_csv(filename, sep='\t', index=False, header=False)

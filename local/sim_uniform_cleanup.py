@@ -21,20 +21,36 @@ chunks = [both[i:i+chunk_size] for i in range(0,len(both),chunk_size)]
 topk = args.topk if args.topk else len(chunks)
 
 for i in range(0,len(chunks)+1)[::-1][:topk]:
+    query = chunks[i-1]
     clean = pd.concat(chunks[:i]) if chunks[:i] else both.sample(0)
     dirty = pd.concat(chunks[i:]) if chunks[i:] else both.sample(0)
 
-    clean = clean[['filename', 'clean']]
-    clean.columns = ['filename', 'text']
+    query = query[['filename', 'clean']]
+    query.columns = ['filename', 'text']
+    query['text'] = '<↑> ' + query['text']
 
-    dirty = dirty[['filename', 'dirty']]
-    dirty.columns = ['filename', 'text']
+    known_clean = clean[['filename', 'clean']]
+    known_clean.columns = ['filename', 'text']
+    known_clean['text'] = '<↑> ' + known_clean['text']
 
-    dataset = pd.concat([clean, dirty])
+    known_dirty = clean[['filename', 'dirty']]
+    known_dirty.columns = ['filename', 'text']
+    known_dirty['text'] = '<↓> ' + known_dirty['text']
+
+    unknown = dirty[['filename', 'dirty']]
+    unknown.columns = ['filename', 'text']
+    unknown['text'] = '<?> ' + unknown['text']
+
+    dataset = pd.concat([known_clean, known_dirty, unknown])
     dataset = dataset.sample(frac=1, replace=False, random_state=i)
 
-    filename = f'data/corrupted-librispeech/train-clean-100.seed{args.seed}.dirty{len(dirty):05d}.txt'
-    print(filename, i, len(dirty), len(clean), len(dataset))
+    filename = f'data/flaky/spin/train-clean-100.seed{args.seed}.unknown{len(unknown):05d}.txt.spin'
     dataset.to_csv(filename, sep='\t', index=False, header=False)
-    
+
+    filename = f'data/flaky/spin/train-clean-100.seed{args.seed}.unknown{len(unknown):05d}.clean.txt.spin'
+    clean.to_csv(filename, sep='\t', index=False, header=False)
+
+    filename = f'data/flaky/spin/train-clean-100.seed{args.seed}.unknown{len(unknown):05d}.query.txt.spin'
+    query.to_csv(filename, sep='\t', index=False, header=False)
+
 print([len(chunk) for chunk in chunks], len(chunks))
