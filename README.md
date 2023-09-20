@@ -4,7 +4,7 @@ This dataset is constructed by training a character-based [Conv1d-LSTM](https://
 
 The run that resulted in this data: https://wandb.ai/stud76/ha/runs/3i0kv0vf
 
-The code for the model and training is available in [haloop commit e7b6fe7](https://github.com/proger/haloop/tree/e7b6fe7b8b2efa0c21fa0227b0e5267846fc302f).
+The code for the model and training is available in [haloop commit e7b6fe7](https://github.com/proger/haloop/tree/e7b6fe7b8b2efa0c21fa0227b0e5267846fc302f). Implementation of Bootstrapped Likelihood is available in the [main branch of haloop](https://github.com/proger/haloop)
 
 This dataset contains 28539 utterances. Later experiments use 28538 utterances without the first one.
 
